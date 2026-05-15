@@ -1,0 +1,14 @@
+"""notifiers/desktop.py — Electron 클라이언트 푸시 stub. 향후 구현."""
+from __future__ import annotations
+from notifiers._base import BaseNotifier
+
+
+class DesktopNotifier(BaseNotifier):
+    channel_name = "desktop"
+    
+    def is_available(self) -> bool:
+        return False
+    
+    def send(self, recipient: str, subject: str, body: str, **kwargs) -> bool:
+        print(f"[DesktopNotifier] not implemented yet (recipient={recipient})")
+        return False
