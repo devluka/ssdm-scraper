@@ -5,7 +5,7 @@ scrap 공통 유틸:
 1. Supabase 클라이언트
 2. ConfigLoader (if_upgrade_pro_consumption에서 키 SELECT)
 3. opportunities_raw INSERT 헬퍼
-4. sdm-collector trigger (repository_dispatch)
+4. ssdm-collector trigger (repository_dispatch)
 
 모든 scraper(bizinfo, g2b, ...)가 이 모듈 import해서 공통 처리.
 """
@@ -163,11 +163,11 @@ def insert_raw(
 
 
 # ============================================================
-# sdm-collector 트리거 (repository_dispatch)
+# ssdm-collector 트리거 (repository_dispatch)
 # ============================================================
 def trigger_collector(source_key: str) -> bool:
     """
-    sdm-collector 레포에 'scrap-finished' 이벤트 발송.
+    ssdm-collector 레포에 'scrap-finished' 이벤트 발송.
     PAT 없으면 skip (나중에 cron이 백업으로 처리하니까 OK).
     """
     pat = os.environ.get("SDM_COLLECTOR_PAT", "").strip()
@@ -177,11 +177,11 @@ def trigger_collector(source_key: str) -> bool:
     
     try:
         resp = requests.post(
-            "https://api.github.com/repos/Luka-Lloris/sdm-collector/dispatches",
+            "https://api.github.com/repos/devluka/ssdm-collector/dispatches",
             headers={
                 "Authorization": f"token {pat}",
                 "Accept": "application/vnd.github.v3+json",
-                "User-Agent": "sdm-scrap",
+                "User-Agent": "ssdm-scraper",
             },
             json={
                 "event_type": "scrap-finished",
@@ -193,7 +193,7 @@ def trigger_collector(source_key: str) -> bool:
             timeout=15,
         )
         if resp.status_code in (200, 204):
-            print(f"[trigger] sdm-collector dispatched (source={source_key})")
+            print(f"[trigger] ssdm-collector dispatched (source={source_key})")
             return True
         print(f"[trigger] failed status={resp.status_code} body={resp.text[:200]}")
         return False

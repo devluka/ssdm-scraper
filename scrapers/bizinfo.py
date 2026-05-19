@@ -128,7 +128,7 @@ def main():
     result = insert_raw(source_key="bizinfo", items=items, ext_id_field="ext_id")
     print(f"[Bizinfo Scrap] insert result: {result}")
     
-    # 4. sdm-collector trigger
+    # 4. ssdm-collector trigger
     trigger_collector(source_key="bizinfo")
     
     elapsed = round(time.time() - started_at, 2)
