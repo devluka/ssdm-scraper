@@ -1,0 +1,41 @@
+name: Dashboard — Update Stats
+
+on:
+  schedule:
+    # scrap·collect 끝난 후 30분 추가 여유로
+    - cron: '0 21 * * *'    # KST 06:00 (scrap KST 05:00 + 1시간)
+    - cron: '30 7 * * *'    # KST 16:30 (scrap KST 15:30 + 1시간)
+  workflow_dispatch:
+
+permissions:
+  contents: write   # docs/data.json 커밋 권한
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install deps
+        run: pip install -r requirements.txt
+      
+      - name: Update dashboard data
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python -m scripts.update_dashboard
+      
+      - name: Commit data.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data.json
+          git diff --staged --quiet || git commit -m "chore: update dashboard data [skip ci]"
+          git push
