@@ -1,0 +1,47 @@
+name: Alert — Multi-channel Notification Hub
+
+on:
+  workflow_dispatch:
+    inputs:
+      alert_type:
+        description: '알림 타입'
+        type: choice
+        required: true
+        default: deadline_imminent
+        options:
+          - deadline_imminent
+      channels:
+        description: '발송 채널 (콤마 구분: email,sms,kakao,slack,desktop,webhook)'
+        type: string
+        required: true
+        default: 'email'
+      recipients:
+        description: '받는 사람 (콤마 구분)'
+        type: string
+        required: false
+        default: ''
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install deps
+        run: pip install -r requirements.txt
+      
+      - name: Run alert
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          ALERT_TYPE: ${{ inputs.alert_type }}
+          CHANNELS: ${{ inputs.channels }}
+          RECIPIENTS: ${{ inputs.recipients }}
+        run: python -m scripts.alert_runner
