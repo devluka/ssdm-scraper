@@ -6,6 +6,7 @@ scrap 공통 유틸:
 2. ConfigLoader (if_upgrade_pro_consumption에서 키 SELECT)
 3. opportunities_raw INSERT 헬퍼
 4. ssdm-collector trigger (repository_dispatch)
+5. get_with_fallback (직접 연결 실패 시 KR 무료 프록시 폴백)
 
 모든 scraper(bizinfo, g2b, ...)가 이 모듈 import해서 공통 처리.
 """
@@ -214,3 +215,82 @@ DEFAULT_HEADERS = {
     "Accept": "application/json, text/xml, */*",
     "Accept-Language": "ko-KR,ko;q=0.9,en;q=0.8",
 }
+
+
+# ============================================================
+# KR 무료 프록시 폴백
+# ------------------------------------------------------------
+# 정부 사이트가 GitHub Actions(해외) IP를 간헐 차단하면서
+# connect timeout 발생. 직접 연결 실패 시에만 한국 무료 프록시로
+# 재시도하는 임시 폴백. 평소 직접 연결 성공 시엔 호출 비용 0.
+#
+# 주의: 무료 프록시는 신뢰성이 낮음(잦은 사망, HTTPS 미지원 등).
+# 안정적 복구가 필요하면 유료 프록시/한국 리전 서버리스로 교체할 것.
+# ============================================================
+_PROXY_LIST_URL = (
+    "https://api.proxyscrape.com/v4/free-proxy-list/get"
+    "?request=display_proxies&country=kr&protocol=http"
+    "&proxy_format=protocolipport&format=text&timeout=5000"
+)
+_proxy_cache: List[str] = []
+_proxy_loaded: bool = False
+
+
+def _load_kr_proxies() -> List[str]:
+    """무료 한국 프록시 목록 조회 (프로세스당 1회 캐시)."""
+    global _proxy_cache, _proxy_loaded
+    if _proxy_loaded:
+        return _proxy_cache
+    _proxy_loaded = True
+    try:
+        resp = requests.get(_PROXY_LIST_URL, timeout=10)
+        resp.raise_for_status()
+        proxies = [ln.strip() for ln in resp.text.splitlines() if ln.strip()]
+        _proxy_cache = proxies[:10]  # 상위 10개만
+        print(f"[Proxy] loaded {len(_proxy_cache)} KR proxies")
+    except Exception as e:
+        print(f"[Proxy] load failed: {e}")
+        _proxy_cache = []
+    return _proxy_cache
+
+
+def get_with_fallback(url: str, **kwargs) -> requests.Response:
+    """
+    직접 연결 시도 → connect 실패 시 KR 프록시 폴백.
+
+    - 평소엔 requests.get 직접 호출과 동일 (프록시 미사용, 추가 비용 0).
+    - ConnectTimeout / ConnectionError 발생 시에만 한국 무료 프록시를
+      차례로 시도. 프록시는 직접 연결보다 느릴 수 있어 timeout을 넉넉히 줌.
+    - 모든 프록시 실패 시 원래 직접 연결 예외를 그대로 재발생.
+
+    호출부는 requests.get과 동일한 시그니처로 사용 가능.
+    """
+    try:
+        return requests.get(url, **kwargs)
+    except (requests.exceptions.ConnectTimeout,
+            requests.exceptions.ConnectionError) as direct_err:
+        print(f"[Proxy] direct failed ({direct_err.__class__.__name__}), trying proxies")
+
+        # 프록시는 직접 연결보다 느리므로 timeout을 늘려준다 (최소 30s).
+        proxy_kwargs = dict(kwargs)
+        base_timeout = proxy_kwargs.get("timeout", 20)
+        try:
+            proxy_kwargs["timeout"] = max(int(base_timeout), 30)
+        except (TypeError, ValueError):
+            proxy_kwargs["timeout"] = 30
+
+        for proxy in _load_kr_proxies():
+            try:
+                resp = requests.get(
+                    url,
+                    proxies={"http": proxy, "https": proxy},
+                    **proxy_kwargs,
+                )
+                resp.raise_for_status()
+                print(f"[Proxy] success via {proxy}")
+                return resp
+            except Exception:
+                continue
+
+        print("[Proxy] all proxies failed")
+        raise direct_err
