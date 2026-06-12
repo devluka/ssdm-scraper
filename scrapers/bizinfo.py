@@ -22,6 +22,7 @@ import requests
 from scrapers._common import (
     ConfigLoader,
     DEFAULT_HEADERS,
+    get_with_fallback,
     insert_raw,
     trigger_collector,
 )
@@ -41,7 +42,7 @@ def _fetch_page(api_key: str, page: int, category: str) -> Tuple[List[Dict[str, 
         "pageIndex": page,
         "searchLclasId": category,
     }
-    resp = requests.get(_BASE_URL, params=params, headers=DEFAULT_HEADERS, timeout=20)
+    resp = get_with_fallback(_BASE_URL, params=params, headers=DEFAULT_HEADERS, timeout=20)
     resp.raise_for_status()
     
     try:
