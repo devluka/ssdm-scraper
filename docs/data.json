@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-09-05T20:21:45.606200+09:00",
+  "generated_at": "2026-09-06T07:42:26.021118+09:00",
   "sources": [
     {
       "source_key": "bizinfo",
-      "pending_count": 75385,
+      "pending_count": 76891,
       "processed_count": 219420,
       "error_count": 0,
-      "total_count": 294805,
-      "last_scrap_at": "2026-09-05T08:00:23.231643+00:00",
+      "total_count": 296311,
+      "last_scrap_at": "2026-09-05T20:00:21.034682+00:00",
       "last_processed_at": "2026-08-17T04:12:00.997773+00:00"
     },
     {
