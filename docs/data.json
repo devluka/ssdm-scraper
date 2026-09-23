@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-23T21:56:30.729834+09:00",
+  "generated_at": "2026-09-24T08:27:49.173247+09:00",
   "sources": [
     {
       "source_key": "bizinfo",
@@ -12,11 +12,11 @@
     },
     {
       "source_key": "g2b",
-      "pending_count": 55124,
+      "pending_count": 56665,
       "processed_count": 99675,
       "error_count": 0,
-      "total_count": 154799,
-      "last_scrap_at": "2026-09-23T11:54:02.286984+00:00",
+      "total_count": 156340,
+      "last_scrap_at": "2026-09-23T22:32:36.709783+00:00",
       "last_processed_at": "2026-08-17T04:10:31.713636+00:00"
     }
   ],
