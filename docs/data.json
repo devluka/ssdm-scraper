@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-28T08:42:21.065125+09:00",
+  "generated_at": "2026-09-29T00:47:53.589859+09:00",
   "sources": [
     {
       "source_key": "bizinfo",
@@ -12,11 +12,11 @@
     },
     {
       "source_key": "g2b",
-      "pending_count": 56759,
+      "pending_count": 58594,
       "processed_count": 99675,
       "error_count": 0,
-      "total_count": 156434,
-      "last_scrap_at": "2026-09-27T22:38:54.710875+00:00",
+      "total_count": 158269,
+      "last_scrap_at": "2026-09-28T14:15:57.993884+00:00",
       "last_processed_at": "2026-08-17T04:10:31.713636+00:00"
     }
   ],
@@ -24,28 +24,8 @@
   "trend_7d": [
     {
       "source_key": "g2b",
-      "date": "2026-09-23",
-      "count": 906
-    },
-    {
-      "source_key": "g2b",
-      "date": "2026-09-24",
-      "count": 44
-    },
-    {
-      "source_key": "g2b",
-      "date": "2026-09-25",
-      "count": 2
-    },
-    {
-      "source_key": "g2b",
-      "date": "2026-09-26",
-      "count": 14
-    },
-    {
-      "source_key": "g2b",
-      "date": "2026-09-27",
-      "count": 34
+      "date": "2026-09-28",
+      "count": 1000
     }
   ]
 }
