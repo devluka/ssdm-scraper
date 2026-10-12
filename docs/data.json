@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-10-11T23:18:34.333740+09:00",
+  "generated_at": "2026-10-12T09:18:16.359196+09:00",
   "sources": [],
   "recent_errors": [],
   "trend_7d": [
     {
       "source_key": "g2b",
       "date": "2026-10-09",
-      "count": 962
+      "count": 940
     },
     {
       "source_key": "g2b",
@@ -16,7 +16,7 @@
     {
       "source_key": "g2b",
       "date": "2026-10-11",
-      "count": 15
+      "count": 37
     }
   ]
 }
